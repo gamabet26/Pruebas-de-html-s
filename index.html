@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Switch día/noche · Zubex</title>
+<style>
+  :root{
+    --zx-blue-dark:#0D18A8;
+    --zx-blue:#227EF6;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    min-height:100vh;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-family:'Segoe UI',Arial,sans-serif;
+    background:#f4f6fb;
+    transition:background .6s ease;
+  }
+  body[data-theme="dark"]{ background:#0b0e17; }
+
+  .demo-card{
+    width:320px;
+    border-radius:16px;
+    overflow:hidden;
+    box-shadow:0 10px 34px rgba(13,24,168,.18);
+    background:#fff;
+    transition:background .6s ease, box-shadow .6s ease;
+  }
+  body[data-theme="dark"] .demo-card{ background:#141a2b; box-shadow:0 10px 34px rgba(0,0,0,.5); }
+
+  .demo-header{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    padding:14px 16px;
+    border-bottom:1px solid rgba(0,0,0,.06);
+  }
+  body[data-theme="dark"] .demo-header{ border-bottom-color:rgba(255,255,255,.08); }
+
+  .logo-mark{
+    width:32px;height:32px;border-radius:9px;flex-shrink:0;
+    background:linear-gradient(135deg,var(--zx-blue),var(--zx-blue-dark));
+    display:flex;align-items:center;justify-content:center;
+    color:#fff;font-weight:700;font-size:12px;
+  }
+  .logo-text{ font-weight:700;color:var(--zx-blue-dark);font-size:15px; transition:color .6s ease; }
+  body[data-theme="dark"] .logo-text{ color:#8fb4ff; }
+
+  .demo-body{
+    padding:26px 16px 30px;
+    text-align:center;
+  }
+  .demo-label{
+    font-size:12.5px;
+    color:#8a93a8;
+    margin-bottom:18px;
+  }
+  body[data-theme="dark"] .demo-label{ color:#7b859c; }
+
+  /* ---------- SWITCH DÍA/NOCHE ---------- */
+  #theme-toggle{
+    position:relative;
+    width:78px;
+    height:36px;
+    margin-left:auto;
+    flex-shrink:0;
+    border:none;
+    padding:0;
+    border-radius:999px;
+    cursor:pointer;
+    overflow:hidden;
+    background:linear-gradient(180deg,#bfe3ff 0%,#6fb1ea 55%,#eaf6ff 100%);
+    box-shadow:inset 0 2px 5px rgba(0,0,0,.18), 0 2px 8px rgba(13,24,168,.20);
+    transition:background 1.1s ease, box-shadow .3s ease;
+  }
+  #theme-toggle:focus-visible{ outline:2px solid var(--zx-blue); outline-offset:2px; }
+
+  [data-theme="dark"] #theme-toggle{
+    background:linear-gradient(180deg,#0c1330 0%,#1b2550 55%,#2c3868 100%);
+    box-shadow:inset 0 2px 5px rgba(0,0,0,.5), 0 2px 8px rgba(0,0,0,.35);
+  }
+
+  /* nubes en la base del track */
+  #theme-toggle::before{
+    content:"";
+    position:absolute;
+    left:-7px; right:-7px; bottom:-8px;
+    height:19px;
+    background:
+      radial-gradient(circle, rgba(255,255,255,.95) 0 6px, transparent 7px) 10% 60%/18px 18px,
+      radial-gradient(circle, rgba(255,255,255,.95) 0 7px, transparent 8px) 30% 40%/20px 20px,
+      radial-gradient(circle, rgba(255,255,255,.9)  0 6px, transparent 7px) 52% 60%/18px 18px,
+      radial-gradient(circle, rgba(255,255,255,.9)  0 7px, transparent 8px) 74% 45%/20px 20px,
+      radial-gradient(circle, rgba(255,255,255,.85) 0 6px, transparent 7px) 92% 60%/18px 18px;
+    background-repeat:no-repeat;
+    opacity:.95;
+    transition:opacity .9s ease, filter .9s ease;
+    z-index:2;
+    pointer-events:none;
+  }
+  [data-theme="dark"] #theme-toggle::before{
+    opacity:.32;
+    filter:brightness(.55) saturate(0);
+  }
+
+  /* estrellas, solo visibles de noche */
+  #theme-toggle::after{
+    content:"";
+    position:absolute;
+    inset:0;
+    background-image:
+      radial-gradient(1.4px 1.4px at 14% 25%, #fff, transparent),
+      radial-gradient(1.2px 1.2px at 26% 55%, #fff, transparent),
+      radial-gradient(1.6px 1.6px at 40% 20%, #fff, transparent),
+      radial-gradient(1.2px 1.2px at 30% 75%, #fff, transparent),
+      radial-gradient(1.3px 1.3px at 18% 70%, #fff, transparent);
+    opacity:0;
+    animation:tt-twinkle 3.2s ease-in-out infinite;
+    transition:opacity 1.1s ease;
+    z-index:1;
+    pointer-events:none;
+  }
+  [data-theme="dark"] #theme-toggle::after{ opacity:1; }
+  @keyframes tt-twinkle{
+    0%,100%{ opacity:.55; }
+    50%{ opacity:1; }
+  }
+
+  /* la perilla que se desliza: sol de día, luna de noche */
+  .tt-knob{
+    position:absolute;
+    top:4px; left:4px;
+    width:28px; height:28px;
+    border-radius:50%;
+    background:radial-gradient(circle at 35% 30%, #fff8dc, #ffd54f 55%, #f4a326 100%);
+    box-shadow:0 0 10px 3px rgba(255,183,60,.75), inset 0 0 3px rgba(120,60,0,.25);
+    transition:left .6s cubic-bezier(.34,1.56,.64,1), background .8s ease, box-shadow .8s ease;
+    z-index:3;
+  }
+  [data-theme="dark"] .tt-knob{
+    left:46px;
+    background:radial-gradient(circle at 35% 30%, #ffffff, #e6ecf9 55%, #c2ccdf 100%);
+    box-shadow:0 0 12px 4px rgba(200,215,255,.7), inset 0 0 3px rgba(60,70,110,.35);
+  }
+
+  .demo-mode{
+    margin-top:16px;
+    font-size:13px;
+    font-weight:600;
+    color:var(--zx-blue-dark);
+    transition:color .6s ease;
+  }
+  body[data-theme="dark"] .demo-mode{ color:#8fb4ff; }
+</style>
+</head>
+<body data-theme="light">
+  <div class="demo-card">
+    <div class="demo-header">
+      <div class="logo-mark">ZX</div>
+      <div class="logo-text">zubex</div>
+      <button id="theme-toggle" onclick="toggleTheme()" aria-label="Cambiar tema"><span class="tt-knob"></span></button>
+    </div>
+    <div class="demo-body">
+      <div class="demo-label">Así se ve el botón en el header del sidebar</div>
+      <div class="demo-mode" id="modeLabel">Modo claro activo</div>
+    </div>
+  </div>
+
+<script>
+function toggleTheme(){
+  const body = document.body;
+  const isDark = body.getAttribute("data-theme") === "dark";
+  body.setAttribute("data-theme", isDark ? "light" : "dark");
+  document.getElementById("modeLabel").textContent = isDark ? "Modo claro activo" : "Modo oscuro activo";
+}
+</script>
+</body>
+</html>

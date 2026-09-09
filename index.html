@@ -84,27 +84,32 @@
     box-shadow:inset 0 2px 5px rgba(0,0,0,.5), 0 2px 8px rgba(0,0,0,.35);
   }
 
-  /* nubes en la base del track */
+  /* nubes en la base del track, a la deriva sin parar */
   #theme-toggle::before{
     content:"";
     position:absolute;
     left:-7px; right:-7px; bottom:-8px;
     height:19px;
-    background:
-      radial-gradient(circle, rgba(255,255,255,.95) 0 6px, transparent 7px) 10% 60%/18px 18px,
-      radial-gradient(circle, rgba(255,255,255,.95) 0 7px, transparent 8px) 30% 40%/20px 20px,
-      radial-gradient(circle, rgba(255,255,255,.9)  0 6px, transparent 7px) 52% 60%/18px 18px,
-      radial-gradient(circle, rgba(255,255,255,.9)  0 7px, transparent 8px) 74% 45%/20px 20px,
-      radial-gradient(circle, rgba(255,255,255,.85) 0 6px, transparent 7px) 92% 60%/18px 18px;
-    background-repeat:no-repeat;
+    background-image:
+      radial-gradient(circle at 9px 11px,  rgba(255,255,255,.95) 0 6px, transparent 7px),
+      radial-gradient(circle at 27px 7px,  rgba(255,255,255,.9)  0 7px, transparent 8px),
+      radial-gradient(circle at 40px 12px, rgba(255,255,255,.85) 0 5px, transparent 6px);
+    background-size:52px 100%;
+    background-repeat:repeat-x;
+    animation:tt-cloud-drift 11s linear infinite;
     opacity:.95;
     transition:opacity .9s ease, filter .9s ease;
     z-index:2;
     pointer-events:none;
   }
   [data-theme="dark"] #theme-toggle::before{
-    opacity:.32;
-    filter:brightness(.55) saturate(0);
+    opacity:.35;
+    filter:brightness(.6) saturate(0);
+    animation-duration:16s;
+  }
+  @keyframes tt-cloud-drift{
+    from{ background-position:0 0; }
+    to{ background-position:-52px 0; }
   }
 
   /* estrellas, solo visibles de noche */
@@ -147,6 +152,29 @@
     box-shadow:0 0 12px 4px rgba(200,215,255,.7), inset 0 0 3px rgba(60,70,110,.35);
   }
 
+  /* estrella fugaz, solo aparece de noche, una vez por ciclo */
+  .tt-shoot{
+    position:absolute;
+    top:5px; left:-14px;
+    width:16px; height:2px;
+    border-radius:2px;
+    background:linear-gradient(90deg, rgba(255,255,255,0), #fff 90%);
+    box-shadow:0 0 4px 1px rgba(255,255,255,.8);
+    transform:rotate(22deg);
+    opacity:0;
+    z-index:2;
+    pointer-events:none;
+  }
+  [data-theme="dark"] .tt-shoot{
+    animation:tt-shooting-star 7s ease-in infinite;
+  }
+  @keyframes tt-shooting-star{
+    0%   { opacity:0;   left:-14px; top:4px; }
+    3%   { opacity:1; }
+    9%   { opacity:0;   left:66px;  top:26px; }
+    100% { opacity:0;   left:66px;  top:26px; }
+  }
+
   .demo-mode{
     margin-top:16px;
     font-size:13px;
@@ -162,7 +190,7 @@
     <div class="demo-header">
       <div class="logo-mark">ZX</div>
       <div class="logo-text">zubex</div>
-      <button id="theme-toggle" onclick="toggleTheme()" aria-label="Cambiar tema"><span class="tt-knob"></span></button>
+      <button id="theme-toggle" onclick="toggleTheme()" aria-label="Cambiar tema"><span class="tt-knob"></span><span class="tt-shoot"></span></button>
     </div>
     <div class="demo-body">
       <div class="demo-label">Así se ve el botón en el header del sidebar</div>
